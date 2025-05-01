@@ -1,0 +1,177 @@
+{% extends "layout.html" %}
+
+{% block title %}Facial Emotion Detection - Home{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <h3 class="text-center mb-0">
+                    <i class="fas fa-face-grin-beam me-2"></i>
+                    Facial Emotion Detection
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-primary" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>
+                    This application detects faces and classifies emotions in images or webcam feed.
+                </div>
+                
+                <!-- Image source selection -->
+                <div class="mb-4">
+                    <div class="btn-group w-100" role="group">
+                        <input type="radio" class="btn-check" name="source-options" id="webcam-option" checked>
+                        <label class="btn btn-outline-primary" for="webcam-option">
+                            <i class="fas fa-camera me-2"></i>Webcam
+                        </label>
+
+                        <input type="radio" class="btn-check" name="source-options" id="upload-option">
+                        <label class="btn btn-outline-primary" for="upload-option">
+                            <i class="fas fa-upload me-2"></i>Upload Image
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- File upload (initially hidden) -->
+                <div id="upload-container" class="mb-4 d-none">
+                    <div class="mb-3">
+                        <label for="image-upload" class="form-label">Select an image file:</label>
+                        <input class="form-control" type="file" id="image-upload" accept="image/*">
+                    </div>
+                    <div id="upload-preview-container" class="d-none mb-3">
+                        <div class="card bg-dark">
+                            <div class="card-header">
+                                <h5 class="mb-0">Image Preview</h5>
+                            </div>
+                            <div class="card-body text-center">
+                                <img id="upload-preview" class="img-fluid rounded" alt="Upload preview">
+                            </div>
+                        </div>
+                    </div>
+                    <button id="analyze-image-btn" class="btn btn-success w-100 d-none">
+                        <i class="fas fa-search me-2"></i>Analyze Image
+                    </button>
+                </div>
+                
+                <!-- Webcam container -->
+                <div id="webcam-container" class="mb-4">
+                    <div class="row mb-3">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <div class="card bg-dark h-100">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Webcam Feed</h5>
+                                </div>
+                                <div class="card-body text-center">
+                                    <video id="webcam" class="img-fluid rounded" autoplay playsinline></video>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-dark h-100">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Processed Output</h5>
+                                </div>
+                                <div class="card-body text-center">
+                                    <canvas id="output-canvas" class="img-fluid rounded"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <button id="start-webcam-btn" class="btn btn-primary w-100">
+                                <i class="fas fa-play-circle me-2"></i>Start Webcam
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button id="capture-webcam-btn" class="btn btn-success w-100" disabled>
+                                <i class="fas fa-camera me-2"></i>Capture and Analyze
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Results container -->
+                <div id="results-container" class="mb-4 d-none">
+                    <div class="card">
+                        <div class="card-header bg-dark">
+                            <h5 class="mb-0">
+                                <i class="fas fa-chart-pie me-2"></i>
+                                Emotion Analysis Results
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="no-faces-message" class="alert alert-warning d-none">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                No faces detected in the image. Please try again with a different image.
+                            </div>
+                            <div id="detection-results">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">#</th>
+                                                <th scope="col">Face</th>
+                                                <th scope="col">Emotion</th>
+                                                <th scope="col">Confidence</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="results-table-body">
+                                            <!-- Results will be inserted here dynamically -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Error message container -->
+                <div id="error-container" class="alert alert-danger d-none mb-4" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <span id="error-message">An error occurred.</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Emotion descriptions card -->
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Understanding Emotions
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-smile text-success me-2"></i>Happy</h5>
+                        <p>A state of joy or satisfaction, marked by smiling, raised cheeks, and crinkled eyes.</p>
+                        
+                        <h5><i class="fas fa-frown text-primary me-2"></i>Sad</h5>
+                        <p>A state of unhappiness, characterized by drooping eyelids and downturned mouth corners.</p>
+                        
+                        <h5><i class="fas fa-angry text-danger me-2"></i>Angry</h5>
+                        <p>A state of antagonism, typically shown with furrowed brows, tight lips, and intense eyes.</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-surprise text-warning me-2"></i>Surprise</h5>
+                        <p>A brief emotional state following something unexpected, displayed with raised eyebrows and open mouth.</p>
+                        
+                        <h5><i class="fas fa-grimace text-info me-2"></i>Fear</h5>
+                        <p>An emotional reaction to threats, shown with widened eyes, raised eyebrows, and sometimes an open mouth.</p>
+                        
+                        <h5><i class="fas fa-meh text-secondary me-2"></i>Neutral</h5>
+                        <p>A baseline emotional state with relaxed facial muscles and no prominent expression.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}
